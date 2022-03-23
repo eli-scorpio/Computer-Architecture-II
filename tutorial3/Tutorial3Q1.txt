@@ -1,0 +1,56 @@
+	; AUTHOR: Eligijus Skersonas ID: 19335661
+	;
+	; REGISTER GUIDE FOR PROCEDURE CALLING
+	; 
+	; GLOBAL
+	; r0      - zero
+	; r1      - return argument
+	; r2-r9   - global variables
+	; 
+	; PASS PARAMETERS
+	; r10-r14 - parameters for next function
+	; r15/r31 - return address
+	;
+	; LOCAL VARIABLES
+	; r16-r25 - local variables
+	;
+	; PARAMETERS PASSED TO THIS FUNCTION
+	; r26-r30 - parameter passed to this function
+
+	add r0, #4, r2 		; inp_int = 4;
+
+	; MIN PROCEDURE
+	; r26 - int a
+	; r27 - int b
+	; r28 - int c
+	;
+min: 	add r0, r26, r1 		; int v = a;  (v is also the return argument hence v = r1)
+	sub r27, r1, r0, {C} 	; if(b < v)    (cmp r27, r1)
+	jge if2	 		;
+	xor r0, r0, r0 		; NOP 
+	add r0, r27, r1 		;    v = b
+if2: 	sub r28, r1, r0, {C} 	; if(c < v)    (cmp r28, r1)
+	jge ret			;
+	xor r0, r0, r0 		; NOP
+	add r0, r28, r1 		;    v = c
+ret: 	ret (r31)0 		; return v;
+	
+	; MIN5 PROCEDURE
+	; r26 - int i
+	; r27 - int j
+	; r28 - int k
+	; r29 - int l
+	;
+min5: 	add r0, r2, r10 		; 1st parameter       - inp_int
+	add r0, r26, r11 	; 2nd parameter       - i
+	add r0, r27, r12 	; 3rd parameter       - j
+	callr r15, min 		; min(inp_int, i, j)  - call min procedure and store return address saved in r15/r31
+	xor r0, r0, r0 		; NOP
+	add r0, r1, r10 		; 1st parameter       - r1 contains the result returned from min(inp_int, i, j)
+	add r0, r28, r11 	; 2nd parameter       - k
+	add r0, r29, r12 	; 3rd parameter       - l
+	callr r15, min 		; min(r1, k, l)       - call min procedure and store return address saved in r15/r31
+	xor r0, r0, r0 		; NOP
+	ret (r31)0 		; return min(r1, k, l)  
+	; 	NOTE
+	; r1 is global so the call to min(r1, k, l) already stored the result in r1
